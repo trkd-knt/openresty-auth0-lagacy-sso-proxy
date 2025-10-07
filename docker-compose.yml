@@ -1,0 +1,24 @@
+services:
+  openresty:
+    build: .
+    ports: ["8080:8080"]
+    env_file:
+      - .env
+    environment:
+      # Override for local development
+      PUBLIC_HOST: localhost:8080
+      PGHOST: postgres
+      REDIS_HOST: redis
+    depends_on: [postgres, redis]
+  postgres:
+    image: postgres:17-alpine
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${PGDATABASE}
+      POSTGRES_USER: ${PGUSER}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+    volumes:
+      - ./db/migrations:/docker-entrypoint-initdb.d
+  redis:
+    image: valkey/valkey:7.2-alpine
